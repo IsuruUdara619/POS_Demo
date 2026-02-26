@@ -11,7 +11,7 @@ export default function Products() {
   const [category, setCategory] = useState('');
   const [lowStockThreshold, setLowStockThreshold] = useState('');
   const [error, setError] = useState('');
-  const [nextProductId, setNextProductId] = useState<number | null>(null);
+
   const navigate = useNavigate();
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [items, setItems] = useState<Array<{ product_id: number; product_name: string; sku: string | null; category: string | null; low_stock_threshold: number | null }>>([]);
@@ -134,27 +134,7 @@ export default function Products() {
     }
   }
 
-  // Fetch next product ID
-  const fetchNextId = async () => {
-    setNextProductId(null);
-    try {
-      const data = await get('/products/next-id');
-      setNextProductId(data.next_id);
-    } catch (err: any) {
-      console.error('Failed to fetch next product ID:', err);
-      if (err?.status === 401) {
-        navigate('/login', { replace: true });
-      } else {
-        setNextProductId(-1);
-      }
-    }
-  };
 
-  useEffect(() => {
-    if (showForm) {
-      fetchNextId();
-    }
-  }, [showForm]);
 
   async function fetchProducts() {
     try {
@@ -393,27 +373,7 @@ export default function Products() {
           color: '#fff'
         }}>
           {error && (<div style={{ color: 'red', marginBottom: 12 }}>{error}</div>)}
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, color: '#fff' }}>Product ID (Auto-Generated)</label>
-            <input
-              value={nextProductId === null ? 'Loading...' : nextProductId === -1 ? 'Error (Click to Retry)' : String(nextProductId)}
-              readOnly
-              onClick={() => {
-                if (nextProductId === -1) fetchNextId();
-              }}
-              style={{ 
-                width: '100%', 
-                padding: 10, 
-                borderRadius: 8, 
-                border: '1px solid #555', 
-                boxSizing: 'border-box', 
-                background: '#444', 
-                color: nextProductId === -1 ? '#ff4444' : '#fff', 
-                fontWeight: 600,
-                cursor: nextProductId === -1 ? 'pointer' : 'default'
-              }}
-            />
-          </div>
+
           <div style={{ marginBottom: 12 }}>
             <label style={{ display: 'block', marginBottom: 6 }}>Product Name</label>
             <input
