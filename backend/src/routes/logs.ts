@@ -1,6 +1,7 @@
-import express, { Request, Response } from 'express';
-import { authenticateToken } from '../middleware/auth';
-import errorLogger from '../middleware/errorLogger';
+import express from 'express';
+const { Request, Response } = express;
+import { pool } from '../db.ts';
+import { authenticateToken } from '../middleware/auth.ts';
 
 const router = express.Router();
 

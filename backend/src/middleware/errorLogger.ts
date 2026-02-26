@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
+const { Request, Response, NextFunction } = express;
 import fs from 'fs';
 import path from 'path';
 

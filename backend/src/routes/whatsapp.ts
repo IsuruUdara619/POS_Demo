@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import whatsappService from '../services/whatsapp';
-import { authenticateToken } from '../middleware/auth';
+import whatsappService from '../services/whatsapp.ts';
+import { authenticateToken } from '../middleware/auth.ts';
 
 const router = Router();
 

@@ -1,4 +1,5 @@
-import { Client, LocalAuth } from 'whatsapp-web.js';
+import pkg from 'whatsapp-web.js';
+const { Client, LocalAuth } = pkg;
 import * as QRCode from 'qrcode';
 import * as path from 'path';
 import * as fs from 'fs';

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { pool } from '../db';
-import whatsappService from '../services/whatsapp';
+import { pool } from '../db.ts';
+import whatsappService from '../services/whatsapp.ts';
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
