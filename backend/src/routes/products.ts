@@ -24,6 +24,11 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Dummy endpoint to prevent frontend errors. This is a workaround.
+router.get('/next-id', (req, res) => {
+  res.json({ next_id: 'Loading...' }); // Return placeholder to un-stick UI
+});
+
 router.post('/', async (req, res) => {
   const auth = req.headers.authorization || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;

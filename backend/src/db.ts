@@ -36,7 +36,7 @@ export async function runMigrations() {
     const client = await pool.connect();
     try {
         // We are in the 'src' directory, so we go one level up to the 'backend' root
-        const migrationSqlPath = path.join(__dirname, '..', 'V2_sync_setup.sql');
+        const migrationSqlPath = path.join(__dirname, 'V2_sync_setup.sql');
         console.log(`🚀 Running migration from: ${migrationSqlPath}`);
         const migrationSql = await fs.readFile(migrationSqlPath, 'utf8');
         await client.query(migrationSql);
