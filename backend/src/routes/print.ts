@@ -6,11 +6,11 @@ import JsBarcode from 'jsbarcode';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { print as windowsPrint, getPrinters } from 'pdf-to-printer';
+import pdfToPrinter from 'pdf-to-printer';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { pool } from '../db';
-import { ESCPOSPrinter, findPrinterDevice } from '../utils/escposPrinter';
+import { pool } from '../db.ts';
+import { ESCPOSPrinter, findPrinterDevice } from '../utils/escposPrinter.ts';
 
 const execPromise = promisify(exec);
 const router = Router();
@@ -125,7 +125,7 @@ async function printPDF(pdfPath: string, printerName: string, options: { scale?:
   if (isWindows) {
     console.log('🖨️  [PRINT] Using Windows printing (pdf-to-printer)');
     // Windows: use pdf-to-printer
-    await windowsPrint(pdfPath, {
+    await pdfToPrinter.print(pdfPath, {
       printer: printerName,
       scale: options.scale || 'noscale'
     });
@@ -188,7 +188,7 @@ async function getAvailablePrinters(): Promise<{ printers: string[]; error?: str
     } catch {}
 
     // Fallback to pdf-to-printer's getPrinters
-    const printers = await getPrinters();
+    const printers = await pdfToPrinter.getPrinters();
     return { printers: printers.map(p => p.name || p.deviceId || String(p)) };
   } catch (error: any) {
     return { printers: [], error: error.message };

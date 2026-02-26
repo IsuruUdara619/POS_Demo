@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
+const { Request, Response, NextFunction } = express;
 import jwt from 'jsonwebtoken';
 
-export interface AuthRequest extends Request {
+export interface AuthRequest extends express.Request {
   user?: {
     sub: string;
     username: string;

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { pool } from '../db';
+import { pool } from '../db.ts';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
