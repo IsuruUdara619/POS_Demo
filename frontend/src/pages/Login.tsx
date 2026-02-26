@@ -48,7 +48,7 @@ export default function Login() {
         color: '#fff', borderBottom: `1px solid ${roseGold}`,
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
       }}>
-        <img src={companyLogo} alt="Logo" style={{ height: 40, width: 40, objectFit: 'contain', borderRadius: 4, background: '#fff', padding: 2 }} />
+        {/* <img src={companyLogo} alt="Logo" style={{ height: 40, width: 40, objectFit: 'contain', borderRadius: 4, background: '#fff', padding: 2 }} /> */}
         <div style={{ fontWeight: 700, fontSize: 24 }}>Demo POS System</div>
       </div>
       <div style={{ maxWidth: 360, margin: '60px auto', padding: 24, border: '1px solid #555', borderRadius: 12, background: '#31a354', boxShadow: '0 6px 18px rgba(0,0,0,0.08)' }}>

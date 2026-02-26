@@ -31,6 +31,7 @@ import bcrypt from 'bcryptjs';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+
 async function setupAdminUser() {
   console.log('👤 Setting up admin user...');
   const username = process.env.ADMIN_USERNAME;
