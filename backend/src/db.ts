@@ -3,33 +3,28 @@ const { Pool } = pg;
 import { promises as fs } from 'fs';
 import path from 'path';
 
-// Parse DATABASE_URL or use explicit parameters
-const getDatabaseConfig = () => {
-  const dbUrl = process.env.DATABASE_URL;
-  
-  if (dbUrl) {
-    // Parse connection string manually to avoid pg parsing issues
-    const url = new URL(dbUrl);
-    return {
-      host: url.hostname,
-      port: parseInt(url.port) || 5432,
-      database: url.pathname.slice(1), // Remove leading '/'
-      user: url.username,
-      password: url.password,
-    };
-  }
-  
-  // Fallback to individual env variables if needed
-  return {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'postgres',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-  };
-};
+function getDatabaseConfig() {
+    const connectionString = process.env.DATABASE_URL;
+    if (connectionString) {
+        const masked = connectionString.replace(/:[^:@]*@/, ':****@');
+        console.log(`🔌 Using DATABASE_URL: ${masked}`);
+        return {
+            connectionString,
+            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+        };
+    }
 
-// Create a new pool instance using explicit parameters
+    console.log('🔌 Using individual database environment variables.');
+    return {
+        host: process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.DB_PORT || '5432', 10),
+        database: process.env.DB_NAME || 'pos',
+        user: process.env.DB_USER || 'postgres',
+        password: process.env.DB_PASSWORD || 'postgres',
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+    };
+}
+
 export const pool = new Pool(getDatabaseConfig());
 
 // Function to ensure the pool is connected/ready (mostly for compatibility with previous logic)
@@ -51,9 +46,8 @@ export async function runMigrations() {
 
 export async function ensurePool() {
   try {
-    // Test connection
     const client = await pool.connect();
-    console.log('Successfully connected to PostgreSQL database.');
+    console.log('✅ Successfully connected to PostgreSQL database.');
     client.release();
 
     // Run migrations after successful connection

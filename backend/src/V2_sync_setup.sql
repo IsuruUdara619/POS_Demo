@@ -55,12 +55,15 @@ BEGIN
 END;
 $$;
 
--- Task 4: Create a table to store sync metadata
+-- Task 4: Create a table to store sync metadata for each node
+-- We drop the old table to ensure the new schema is applied.
+DROP TABLE IF EXISTS sync_metadata;
 CREATE TABLE IF NOT EXISTS sync_metadata (
-    key VARCHAR(255) PRIMARY KEY,
-    value TIMESTAMPTZ
+    node_id UUID PRIMARY KEY,
+    last_pull_timestamp TIMESTAMPTZ NOT NULL DEFAULT '1970-01-01T00:00:00Z'
 );
-INSERT INTO sync_metadata (key, value) VALUES ('last_pull_timestamp', '1970-01-01T00:00:00Z') ON CONFLICT (key) DO NOTHING;
+
+COMMENT ON TABLE sync_metadata IS 'Stores the last successful pull timestamp for each client node.';
 
 COMMENT ON COLUMN products.id IS 'Globally unique identifier for synchronization.';
 COMMENT ON COLUMN products.created_by_node IS 'The node that created this record.';

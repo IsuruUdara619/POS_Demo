@@ -32,6 +32,15 @@ async function syncWorker() {
 
   const client = await pool.connect();
   try {
+<<<<<<< HEAD
+=======
+    const token = process.env.INTERNAL_SYNC_TOKEN;
+    if (!token) {
+      console.error('Sync worker: INTERNAL_SYNC_TOKEN is not set in .env. Skipping sync cycle.');
+      return;
+    }
+
+>>>>>>> d059beade793077b99b085fa7cab428d8b951f48
     // === PUSH PHASE ===
     const itemsToPush = await client.query(
       'SELECT * FROM sync_queue WHERE synced = false ORDER BY created_at ASC'
@@ -44,6 +53,10 @@ async function syncWorker() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+<<<<<<< HEAD
+=======
+            'Authorization': `Bearer ${token}`,
+>>>>>>> d059beade793077b99b085fa7cab428d8b951f48
             'X-Node-Id': nodeId,
           },
           body: JSON.stringify({ items: itemsToPush.rows }),
@@ -62,13 +75,26 @@ async function syncWorker() {
     }
 
     // === PULL PHASE ===
-    const lastPullTimestampResult = await client.query('SELECT value FROM sync_metadata WHERE key = $1', ['last_pull_timestamp']);
-    const lastPullTimestamp = lastPullTimestampResult.rows[0]?.value || '1970-01-01T00:00:00Z';
-    
-    console.log(`Sync worker: Pulling changes since ${lastPullTimestamp}`);
+    // 1. Get the last pull timestamp for this specific node.
+    const lastPullTimestampResult = await client.query(
+        'SELECT last_pull_timestamp FROM sync_metadata WHERE node_id = $1',
+        [nodeId]
+    );
+
+    // If this node has never pulled, the record might not exist. The DB has a default, but we can be safe.
+    const lastPullTimestamp = lastPullTimestampResult.rows[0]?.last_pull_timestamp || '1970-01-01T00:00:00Z';
+
+    // 2. Convert the timestamp (which is a Date object from the DB) to a clean ISO 8601 string.
+    const lastPullTimestampISO = new Date(lastPullTimestamp).toISOString();
+
+    console.log(`Sync worker: Pulling changes since ${lastPullTimestampISO}`);
     try {
-      const response = await fetch(`${apiUrl}/sync/pull?last_pull_timestamp=${encodeURIComponent(lastPullTimestamp)}`, {
-        headers: { 'X-Node-Id': nodeId },
+      // 3. Use the ISO string in the URL. It's standard and safe.
+      const response = await fetch(`${apiUrl}/sync/pull?last_pull_timestamp=${encodeURIComponent(lastPullTimestampISO)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Node-Id': nodeId
+        },
       });
 
       if (response.ok) {
@@ -82,9 +108,9 @@ async function syncWorker() {
           console.log('Sync worker: Finished applying pulled items.');
         }
 
-        // Update last_pull_timestamp even if there were no items to ensure we don't re-fetch
+        // Update last_pull_timestamp for this node.
         if (newTimestamp) {
-            await client.query('UPDATE sync_metadata SET value = $1 WHERE key = $2', [newTimestamp, 'last_pull_timestamp']);
+            await client.query('UPDATE sync_metadata SET last_pull_timestamp = $1 WHERE node_id = $2', [newTimestamp, nodeId]);
         }
       } else {
         console.error(`Sync worker: Pull failed with status ${response.status}`);

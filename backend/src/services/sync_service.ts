@@ -58,9 +58,40 @@ async function applyInsert(client: PoolClient, item: SyncItem): Promise<boolean>
     const values = Object.values(payload);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
 
-    await client.query(`INSERT INTO public.${table_name} (${columns}) VALUES (${placeholders})`, values);
-    console.log(`Applied INSERT for row ${row_id} in ${table_name}`);
-    return true;
+    try {
+        await client.query(`INSERT INTO public.${table_name} (${columns}) VALUES (${placeholders})`, values);
+        console.log(`Applied INSERT for row ${row_id} in ${table_name}`);
+        return true;
+    } catch (error: any) {
+        if (error.code === '23505') { // unique_violation
+            console.warn(`Conflict in INSERT for ${table_name}: ${error.detail}.`);
+
+            // Handle product_id conflict specifically
+            if (table_name === 'products' && error.constraint === 'products_pkey' && payload.product_id) {
+                console.log(`Resolving product_id conflict for ${payload.product_id}. Overwriting local record.`);
+                
+                const keys = Object.keys(payload);
+                const setClauses = keys.map((key, i) => `${key} = $${i + 1}`).join(', ');
+                const updateValues = [...Object.values(payload), payload.product_id];
+
+                await client.query(
+                    `UPDATE public.${table_name} SET ${setClauses} WHERE product_id = $${updateValues.length}`,
+                    updateValues
+                );
+                console.log(`Applied UPDATE (resolution) for row ${row_id} in ${table_name}`);
+                return true;
+            }
+            
+            // Handle generic conflict where we might want to skip or update
+            // For now, if we can't resolve it specifically, we return false to indicate failure,
+            // or true to skip (idempotency for unknown conflicts might be risky).
+            // But failing crashes the worker loop or stops sync.
+            // Let's return true to skip and log it, so other items can process.
+            console.warn(`Skipping conflicting INSERT for ${table_name} row ${row_id}`);
+            return true;
+        }
+        throw error;
+    }
 }
 
 /**

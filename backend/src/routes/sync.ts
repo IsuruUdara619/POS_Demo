@@ -1,7 +1,7 @@
 
 import { Router } from 'express';
 import { pool } from '../db';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateSync } from '../middleware/authenticateSync';
 import type { AuthRequest } from '../middleware/auth';
 
 const router = Router();
@@ -17,13 +17,13 @@ interface SyncItem {
 }
 
 // Endpoint for a client node to PUSH its changes to the server
+<<<<<<< HEAD
 router.post('/push', authenticateToken, async (req: AuthRequest, res) => {
+=======
+router.post('/push', authenticateSync, async (req: AuthRequest, res) => {
+>>>>>>> d059beade793077b99b085fa7cab428d8b951f48
     const items: SyncItem[] = req.body.items;
-    const sourceNodeId = req.headers['x-node-id'] as string;
-
-    if (!items || !Array.isArray(items) || !sourceNodeId) {
-        return res.status(400).json({ message: 'Invalid sync payload. "items" array and "X-Node-Id" header are required.' });
-    }
+on({ message: 'Invalid sync payload. "it
 
     if (items.length === 0) {
         return res.status(200).json({ message: 'No items to sync.' });
@@ -67,7 +67,11 @@ router.post('/push', authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // Endpoint for a client node to PULL changes from the server
+<<<<<<< HEAD
 router.get('/pull', authenticateToken, async (req: AuthRequest, res) => {
+=======
+router.get('/pull', authenticateSync, async (req: AuthRequest, res) => {
+>>>>>>> d059beade793077b99b085fa7cab428d8b951f48
     const lastPullTimestamp = req.query.last_pull_timestamp as string || '1970-01-01T00:00:00Z';
     const sourceNodeId = req.headers['x-node-id'] as string;
 
@@ -77,7 +81,7 @@ router.get('/pull', authenticateToken, async (req: AuthRequest, res) => {
     
     const client = await pool.connect();
     try {
-        // We get the server's current time BEFORE the query to ensure consistency
+        // We get the server's current time BEFORE the query to use as a fallback.
         const serverTimestampResult = await client.query('SELECT NOW() as now');
         const newTimestamp = serverTimestampResult.rows[0].now;
 
@@ -91,6 +95,12 @@ router.get('/pull', authenticateToken, async (req: AuthRequest, res) => {
         
         console.log(`[Sync Server] Node ${sourceNodeId} pulling changes since ${lastPullTimestamp}. Found ${result.rows.length} items.`);
 
+        // The new timestamp for the client should be the timestamp of the latest item sent.
+        // If no items are sent, we can use the server time we fetched earlier.
+        // Since the query is ordered by created_at ASC, the last item is the newest.
+        const newTimestamp = result.rows.length > 0
+            ? result.rows[result.rows.length - 1].created_at
+            : serverNow;
         res.json({
             items: result.rows,
             new_timestamp: newTimestamp
