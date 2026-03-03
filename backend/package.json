@@ -2,9 +2,8 @@
   "name": "backend",
   "private": true,
   "version": "0.1.0",
-  "type": "commonjs",
   "scripts": {
-    "start": "node -r ts-node/register/transpile-only index.ts",
+    "start": "ts-node index.ts",
     "clean": "rm -rf dist && find . -name \"*.js\" ! -path \"./node_modules/*\" -delete",
     "build": "node node_modules/typescript/bin/tsc",
     "typecheck": "tsc --noEmit"
