@@ -1,8 +1,8 @@
 
 import { Router } from 'express';
-import { pool } from '../db.ts';
-import { authenticateToken } from '../middleware/auth.ts';
-import type { AuthRequest } from '../middleware/auth.ts';
+import { pool } from '../db';
+import { authenticateToken } from '../middleware/auth';
+import type { AuthRequest } from '../middleware/auth';
 
 const router = Router();
 

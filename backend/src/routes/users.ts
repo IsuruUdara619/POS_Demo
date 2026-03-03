@@ -1,10 +1,11 @@
-import { Router } from 'express';
-import { pool } from '../db.ts';
+import express from 'express';
+const { Request, Response } = express;
+import { pool } from '../db';
 import bcrypt from 'bcryptjs';
-import { authenticateToken, checkRole } from '../middleware/auth.ts';
-import type { AuthRequest } from '../middleware/auth.ts';
+import { authenticateToken, checkRole } from '../middleware/auth';
+import type { AuthRequest } from '../middleware/auth';
 
-const router = Router();
+const router = express.Router();
 
 // Get all users (admin only)
 router.get('/', authenticateToken, checkRole(['admin']), async (req: AuthRequest, res) => {

@@ -1,4 +1,4 @@
-import { pool } from '../db.ts';
+import { pool } from '../db';
 import pg from 'pg';
 const { PoolClient } = pg;
 

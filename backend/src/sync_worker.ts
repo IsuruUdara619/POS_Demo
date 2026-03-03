@@ -1,7 +1,7 @@
 
 import dns from 'dns';
-import { pool } from './db.ts';
-import { applySyncItem } from './services/sync_service.ts';
+import { pool } from './db';
+import { applySyncItem } from './services/sync_service';
 
 const SYNC_INTERVAL_MS = 30000; // 30 seconds
 

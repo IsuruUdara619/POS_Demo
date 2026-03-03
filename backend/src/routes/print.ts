@@ -9,8 +9,8 @@ import os from 'os';
 import pdfToPrinter from 'pdf-to-printer';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { pool } from '../db.ts';
-import { ESCPOSPrinter, findPrinterDevice } from '../utils/escposPrinter.ts';
+import { pool } from '../db';
+import { ESCPOSPrinter, findPrinterDevice } from '../utils/escposPrinter';
 
 const execPromise = promisify(exec);
 const router = Router();

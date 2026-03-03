@@ -1,7 +1,7 @@
 import express from 'express';
 const { Request, Response } = express;
-import { pool } from '../db.ts';
-import { authenticateToken } from '../middleware/auth.ts';
+import { pool } from '../db';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 

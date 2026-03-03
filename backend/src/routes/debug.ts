@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { pool } from '../db.ts';
+import { pool } from '../db';
 import jwt from 'jsonwebtoken';
 
 const router = Router();
